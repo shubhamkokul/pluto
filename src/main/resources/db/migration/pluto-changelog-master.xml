@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <!-- Create the "address" table -->
+    <changeSet id="1" author="castiel">
+        <sql>
+            CREATE TABLE IF NOT EXISTS public."address" (
+            "address_id" BIGINT PRIMARY KEY NOT NULL,
+            "customer_id" BIGINT NOT NULL, <!-- Foreign key placeholder -->
+            "street" VARCHAR(255) NOT NULL,
+            "city" VARCHAR(255) NOT NULL,
+            "state" VARCHAR(255),
+            "postal_code" VARCHAR(20),
+            "country" VARCHAR(255),
+            "is_primary" BOOLEAN NOT NULL DEFAULT FALSE
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create the "users" table -->
+    <changeSet id="2" author="castiel">
+        <sql>
+            CREATE TABLE IF NOT EXISTS public."users" (
+            "customer_id" BIGINT PRIMARY KEY NOT NULL,
+            "name" VARCHAR(255) NOT NULL,
+            "username" VARCHAR(255) UNIQUE NOT NULL,
+            "email" VARCHAR(255) UNIQUE NOT NULL,
+            "primary_address_id" BIGINT
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Create the "authentication" table -->
+    <changeSet id="3" author="castiel">
+        <sql>
+            CREATE TABLE IF NOT EXISTS public."authentication" (
+            "customer_id" BIGINT NOT NULL,
+            "password_hash" VARCHAR(255) NOT NULL,
+            "salt" VARCHAR(255) NOT NULL,
+            "last_login" TIMESTAMP WITHOUT TIME ZONE,
+            "failed_attempts" INTEGER DEFAULT 0 NOT NULL,
+            "locked_until" TIMESTAMP WITHOUT TIME ZONE,
+            "jwt_token" VARCHAR(255) UNIQUE NOT NULL, <!-- New column for JWT token -->
+            CONSTRAINT authentication_pkey PRIMARY KEY ("customer_id")
+            );
+        </sql>
+    </changeSet>
+
+    <!-- Add foreign key constraint on "customer_id" in the "address" table -->
+    <changeSet id="4" author="castiel">
+        <sql>
+            ALTER TABLE public."address"
+            ADD CONSTRAINT fk_customer FOREIGN KEY ("customer_id") REFERENCES public.users ("customer_id") ON DELETE CASCADE;
+        </sql>
+    </changeSet>
+
+    <!-- Add foreign key constraint on "primary_address_id" in the "users" table -->
+    <changeSet id="5" author="castiel">
+        <sql>
+            ALTER TABLE public."users"
+            ADD CONSTRAINT fk_primary_address FOREIGN KEY ("primary_address_id") REFERENCES public.address ("address_id") ON DELETE SET NULL;
+        </sql>
+    </changeSet>
+
+    <!-- Add index for customer_id in "users" table -->
+    <changeSet id="6" author="castiel">
+        <sql>
+            CREATE INDEX IF NOT EXISTS users_customer_id_idx ON public.users("customer_id");
+        </sql>
+    </changeSet>
+
+    <!-- Add index for customer_id in "address" table -->
+    <changeSet id="7" author="castiel">
+        <sql>
+            CREATE INDEX IF NOT EXISTS address_customer_id_idx ON public.address("customer_id");
+        </sql>
+    </changeSet>
+
+    <!-- Add index for is_primary in "address" table -->
+    <changeSet id="8" author="castiel">
+        <sql>
+            CREATE INDEX IF NOT EXISTS address_is_primary_idx ON public.address("is_primary");
+        </sql>
+    </changeSet>
+
+    <!-- Add index for customer_id in "authentication" table -->
+    <changeSet id="9" author="castiel">
+        <sql>
+            CREATE INDEX IF NOT EXISTS authentication_customer_id_idx ON public.authentication("customer_id");
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
