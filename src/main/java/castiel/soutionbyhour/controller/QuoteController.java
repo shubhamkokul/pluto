@@ -2,6 +2,7 @@ package castiel.soutionbyhour.controller;
 
 import castiel.soutionbyhour.delegate.FinHubDelegate;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -10,13 +11,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-
-public class PlutoController implements PlutoEndpoint {
+@ApplicationScoped
+public class QuoteController implements PlutoEndpoint {
 
     @Inject
     FinHubDelegate finHubDelegate;
 
-    @Override
     @GET
     @Path("/quote/{ticker}")
     @Produces(MediaType.APPLICATION_JSON)

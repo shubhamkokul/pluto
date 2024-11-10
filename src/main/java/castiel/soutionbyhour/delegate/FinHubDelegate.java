@@ -21,6 +21,7 @@ public class FinHubDelegate {
     private static final Logger LOGGER = Logger.getLogger(FinHubDelegate.class);
     private static final String SYMBOL = "symbol";
     private static final String FINHUB_AUTH = "X-Finnhub-Token";
+    public static final String QUOTE = "/quote";
 
     private final Client client;
     private final ObjectMapper objectMapper;
@@ -67,7 +68,7 @@ public class FinHubDelegate {
 
     private CompletionStage<Response> triggerRequest(String ticker) {
         return client.target(baseUrl)
-                .path("/quote")
+                .path(QUOTE)
                 .queryParam(SYMBOL, ticker)
                 .request()
                 .header(FINHUB_AUTH, apikey)
