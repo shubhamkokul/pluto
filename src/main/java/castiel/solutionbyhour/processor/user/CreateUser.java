@@ -45,29 +45,41 @@ public class CreateUser {
         }
 
         // Process password hashing and token generation asynchronously
-        CompletableFuture<Optional<PasswordHashContext>> passwordHashContextFuture =
-                CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
+        CompletableFuture<Optional<PasswordHashContext>> passwordHashContextFuture = CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
 
-        CompletableFuture<String> authTokenFuture =
-                CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
+        CompletableFuture<String> authTokenFuture = CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
 
+        // Wait for both asynchronous tasks to complete and process the results
         return CompletableFuture.allOf(passwordHashContextFuture, authTokenFuture).thenApplyAsync(voidResult -> {
             try {
-                // Await completion and collect results
+                // Await completion of both tasks and collect results
                 Optional<PasswordHashContext> passwordHashContext = passwordHashContextFuture.get();
                 String authToken = authTokenFuture.get();
 
                 // Process result and create user
-                return passwordHashContext.map(hashContext -> processUserCreation(createUserRequest, hashContext, authToken))
-                        .orElseGet(() -> ImmutableBaseResponse.<CreateUserResponse>builder()
-                                .message("Failed to hash password.")
-                                .build());
+                if (passwordHashContext.isPresent()) {
+                    // Create user and authentication
+                    UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
+                    authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext.get()));
+
+                    // Return response
+                    return ImmutableBaseResponse.<CreateUserResponse>builder()
+                            .response(ImmutableCreateUserResponse.builder()
+                                    .authToken(authToken)
+                                    .customerId(userEntity.customerId)
+                                    .email(userEntity.email)
+                                    .username(userEntity.username)
+                                    .build())
+                            .message("Created a new user.").build();
+                } else {
+                    // If password hashing failed
+                    return ImmutableBaseResponse.<CreateUserResponse>builder().message("Failed to hash password.").build();
+                }
             } catch (Exception e) {
-                return ImmutableBaseResponse.<CreateUserResponse>builder()
-                        .message("An error occurred during user creation: " + e.getMessage())
-                        .build();
+                // Catch exceptions and return an error message
+                return ImmutableBaseResponse.<CreateUserResponse>builder().message("An error occurred during user creation: " + e.getMessage()).build();
             }
-        }).join();
+        }).join(); // Wait for the completion of all futures before returning the response
     }
 
     private Optional<BaseResponse<CreateUserResponse>> validateCreateUserRequest(CreateUserRequest createUserRequest) {
@@ -83,13 +95,11 @@ public class CreateUser {
             return Optional.of(buildErrorResponse("Invalid email format."));
         }
 
-        return Optional.empty(); // Validation passed
+        return Optional.empty();
     }
 
     private BaseResponse<CreateUserResponse> buildErrorResponse(String message) {
-        return ImmutableBaseResponse.<CreateUserResponse>builder()
-                .message(message)
-                .build();
+        return ImmutableBaseResponse.<CreateUserResponse>builder().message(message).build();
     }
 
     private boolean isNullOrEmpty(String value) {
@@ -104,27 +114,6 @@ public class CreateUser {
         // Regex to match a broad spectrum of valid email formats
         String emailRegex = "^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+)$";
         return Pattern.matches(emailRegex, email);
-    }
-
-    private BaseResponse<CreateUserResponse> processUserCreation(CreateUserRequest createUserRequest,
-                                                                 PasswordHashContext passwordHashContext,
-                                                                 String authToken) {
-
-        // Proceed with user and authentication entity creation
-        UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
-        authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
-
-        // Return successful response
-        return ImmutableBaseResponse.<CreateUserResponse>builder()
-                .response(ImmutableCreateUserResponse.builder()
-                        .authToken(authToken)
-                        .customerId(userEntity.customerId)
-                        .email(userEntity.email)
-                        .username(userEntity.username)
-                        .build())
-                .message("Created a new user.")
-                .build();
-
     }
 
     private UserEntity buildUserEntity(CreateUserRequest createUserRequest) {
