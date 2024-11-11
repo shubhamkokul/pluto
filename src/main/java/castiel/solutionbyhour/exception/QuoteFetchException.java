@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.exception;
+package castiel.solutionbyhour.exception;
 
 /**
  * Custom exception for handling errors in fetching stock quotes.

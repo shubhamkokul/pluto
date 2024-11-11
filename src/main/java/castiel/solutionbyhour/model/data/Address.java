@@ -1,11 +1,11 @@
-package castiel.soutionbyhour.model.data;
+package castiel.solutionbyhour.model.data;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 @Entity
 @Table(name = "address")
-public class Address extends PanacheEntity {
+public class Address extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,13 +1,12 @@
-package castiel.soutionbyhour.model.data;
+package castiel.solutionbyhour.model.data;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "authentication")
 public class Authentication extends PanacheEntity {
 
     @OneToOne

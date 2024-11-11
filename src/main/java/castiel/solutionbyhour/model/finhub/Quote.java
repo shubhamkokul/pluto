@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.model.finhub;
+package castiel.solutionbyhour.model.finhub;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

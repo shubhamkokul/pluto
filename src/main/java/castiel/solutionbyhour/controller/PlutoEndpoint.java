@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.controller;
+package castiel.solutionbyhour.controller;
 
 import jakarta.ws.rs.Path;
 

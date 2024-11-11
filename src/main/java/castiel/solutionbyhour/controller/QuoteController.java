@@ -1,6 +1,6 @@
-package castiel.soutionbyhour.controller;
+package castiel.solutionbyhour.controller;
 
-import castiel.soutionbyhour.delegate.FinHubDelegate;
+import castiel.solutionbyhour.delegate.FinHubDelegate;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

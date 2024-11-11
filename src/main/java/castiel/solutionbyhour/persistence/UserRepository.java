@@ -1,6 +1,6 @@
-package castiel.soutionbyhour.persistence;
+package castiel.solutionbyhour.persistence;
 
-import castiel.soutionbyhour.model.data.User;
+import castiel.solutionbyhour.model.data.User;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 

@@ -1,7 +1,7 @@
-package castiel.soutionbyhour.delegate;
+package castiel.solutionbyhour.delegate;
 
-import castiel.soutionbyhour.exception.QuoteFetchException;
-import castiel.soutionbyhour.model.finhub.Quote;
+import castiel.solutionbyhour.exception.QuoteFetchException;
+import castiel.solutionbyhour.model.finhub.Quote;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Uni;

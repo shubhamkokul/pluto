@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.model.incoming.authentication;
+package castiel.solutionbyhour.model.incoming.authentication;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
@@ -9,4 +9,5 @@ public interface Credential {
     String name();
     String username();
     String password();
+    String email();
 }

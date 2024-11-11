@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.provider;
+package castiel.solutionbyhour.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;

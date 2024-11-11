@@ -1,11 +1,13 @@
-package castiel.soutionbyhour.model.data;
+package castiel.solutionbyhour.model.data;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 
 @Entity
-public class User extends PanacheEntity {
+@Table(name = "users")
+public class User extends PanacheEntityBase {
 
+    @Id
     @Column(name = "customer_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public Long customerId;

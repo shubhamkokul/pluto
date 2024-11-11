@@ -1,4 +1,4 @@
-package castiel.soutionbyhour.provider;
+package castiel.solutionbyhour.provider;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
