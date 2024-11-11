@@ -44,8 +44,7 @@
             "salt" VARCHAR(512) NOT NULL,
             "last_login" TIMESTAMP WITHOUT TIME ZONE,
             "failed_attempts" INTEGER DEFAULT 0 NOT NULL,
-            "locked_until" TIMESTAMP WITHOUT TIME ZONE,
-            "jwt_token" VARCHAR(1024) UNIQUE NOT NULL
+            "locked_until" TIMESTAMP WITHOUT TIME ZONE
             );
         </sql>
     </changeSet>

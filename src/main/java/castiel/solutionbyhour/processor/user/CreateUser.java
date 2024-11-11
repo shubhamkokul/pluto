@@ -14,9 +14,11 @@ import castiel.solutionbyhour.processor.user.service.PasswordHasher;
 import castiel.solutionbyhour.processor.user.service.TokenService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 
 @ApplicationScoped
 public class CreateUser {
@@ -34,54 +36,98 @@ public class CreateUser {
         this.passwordHasher = passwordHasher;
     }
 
+    @Transactional
     public BaseResponse<CreateUserResponse> process(CreateUserRequest createUserRequest) {
-        // Use CompletableFuture to handle async operations
-        CompletableFuture<UserEntity> userEntityFuture = CompletableFuture.supplyAsync(() -> userRepository.createUser(buildUserEntity(createUserRequest)));
+        // Validate the input
+        Optional<BaseResponse<CreateUserResponse>> validationResponse = validateCreateUserRequest(createUserRequest);
+        if (validationResponse.isPresent()) {
+            return validationResponse.get();
+        }
 
-        CompletableFuture<Optional<PasswordHashContext>> passwordHashContextFuture = CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
+        // Process password hashing and token generation asynchronously
+        CompletableFuture<Optional<PasswordHashContext>> passwordHashContextFuture =
+                CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
 
-        CompletableFuture<String> authTokenFuture = CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
+        CompletableFuture<String> authTokenFuture =
+                CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
 
-        // Combine all futures to process once all tasks complete
-        return CompletableFuture.allOf(userEntityFuture, passwordHashContextFuture, authTokenFuture).thenApplyAsync(voidResult -> {
+        return CompletableFuture.allOf(passwordHashContextFuture, authTokenFuture).thenApplyAsync(voidResult -> {
             try {
-                // Collect results from all futures
-                UserEntity userEntity = userEntityFuture.get();
-                Optional<PasswordHashContext> passwordHashContextOpt = passwordHashContextFuture.get();
+                // Await completion and collect results
+                Optional<PasswordHashContext> passwordHashContext = passwordHashContextFuture.get();
                 String authToken = authTokenFuture.get();
 
-                if (passwordHashContextOpt.isPresent()) {
-                    AuthenticationEntity authenticationEntity = insertIntoAuthentication(userEntity.customerId, passwordHashContextOpt.get(), authToken);
-
-                    // Return response
-                    return ImmutableBaseResponse.<CreateUserResponse>builder().response(ImmutableCreateUserResponse.builder()
-                            .authToken(authenticationEntity.jwtToken)
-                            .customerId(userEntity.customerId)
-                            .email(userEntity.email)
-                            .username(userEntity.username)
-                            .build())
-                            .message("Created a new user").build();
-                } else {
-                    // Handle the case where password hash context is not present
-                    return ImmutableBaseResponse.<CreateUserResponse>builder().message("Failed to hash password").build();
-                }
+                // Process result and create user
+                return passwordHashContext.map(hashContext -> processUserCreation(createUserRequest, hashContext, authToken))
+                        .orElseGet(() -> ImmutableBaseResponse.<CreateUserResponse>builder()
+                                .message("Failed to hash password.")
+                                .build());
             } catch (Exception e) {
-                // Handle exceptions like UserAlreadyExistsException
-                return ImmutableBaseResponse.<CreateUserResponse>builder().message("An error occurred during user creation: " + e.getMessage()).build();
+                return ImmutableBaseResponse.<CreateUserResponse>builder()
+                        .message("An error occurred during user creation: " + e.getMessage())
+                        .build();
             }
-        }).join(); // wait for completion and return the final response
+        }).join();
     }
 
-    private AuthenticationEntity insertIntoAuthentication(Long customerId, PasswordHashContext passwordHashContext, String authToken) {
-        return authenticationRepository.createAuthentication(
-                buildAuthenticationEntity(customerId, passwordHashContext, authToken));
+    private Optional<BaseResponse<CreateUserResponse>> validateCreateUserRequest(CreateUserRequest createUserRequest) {
+        if (createUserRequest == null) {
+            return Optional.of(buildErrorResponse("Invalid input: CreateUserRequest cannot be null."));
+        }
+
+        if (isNullOrEmpty(createUserRequest.password())) {
+            return Optional.of(buildErrorResponse("Invalid input: Password cannot be empty."));
+        }
+
+        if (!isValidEmail(createUserRequest.email())) {
+            return Optional.of(buildErrorResponse("Invalid email format."));
+        }
+
+        return Optional.empty(); // Validation passed
     }
 
+    private BaseResponse<CreateUserResponse> buildErrorResponse(String message) {
+        return ImmutableBaseResponse.<CreateUserResponse>builder()
+                .message(message)
+                .build();
+    }
+
+    private boolean isNullOrEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private boolean isValidEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
+
+        // Regex to match a broad spectrum of valid email formats
+        String emailRegex = "^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+)$";
+        return Pattern.matches(emailRegex, email);
+    }
+
+    private BaseResponse<CreateUserResponse> processUserCreation(CreateUserRequest createUserRequest,
+                                                                 PasswordHashContext passwordHashContext,
+                                                                 String authToken) {
+
+        // Proceed with user and authentication entity creation
+        UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
+        authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
+
+        // Return successful response
+        return ImmutableBaseResponse.<CreateUserResponse>builder()
+                .response(ImmutableCreateUserResponse.builder()
+                        .authToken(authToken)
+                        .customerId(userEntity.customerId)
+                        .email(userEntity.email)
+                        .username(userEntity.username)
+                        .build())
+                .message("Created a new user.")
+                .build();
+
+    }
 
     private UserEntity buildUserEntity(CreateUserRequest createUserRequest) {
-        if (createUserRequest == null) {
-            return null;
-        }
         UserEntity userEntity = new UserEntity();
         userEntity.name = createUserRequest.name();
         userEntity.email = createUserRequest.email();
@@ -89,10 +135,9 @@ public class CreateUser {
         return userEntity;
     }
 
-    private AuthenticationEntity buildAuthenticationEntity(Long customerId, PasswordHashContext passwordHashContext, String authToken) {
+    private AuthenticationEntity buildAuthenticationEntity(Long customerId, PasswordHashContext passwordHashContext) {
         AuthenticationEntity authenticationEntity = new AuthenticationEntity();
         authenticationEntity.customerId = customerId;
-        authenticationEntity.jwtToken = authToken;
         authenticationEntity.passwordHash = passwordHashContext.hashedPassword();
         authenticationEntity.salt = passwordHashContext.generatedSalt();
         return authenticationEntity;

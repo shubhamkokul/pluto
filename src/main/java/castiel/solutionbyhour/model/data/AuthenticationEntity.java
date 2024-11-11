@@ -31,7 +31,4 @@ public class AuthenticationEntity extends PanacheEntityBase {
 
     @Column(name = "locked_until")
     public LocalDateTime lockedUntil;
-
-    @Column(name = "jwt_token", nullable = false, unique = true)
-    public String jwtToken;  // JWT token
 }

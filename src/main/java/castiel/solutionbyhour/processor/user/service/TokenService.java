@@ -13,6 +13,7 @@ public class TokenService {
     @ConfigProperty(name = "application.name")
     private String name;
 
+
     public String createAuthToken(String username) {
         Instant now = Instant.now();
         return Jwt.issuer(name)
