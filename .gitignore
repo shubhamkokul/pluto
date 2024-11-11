@@ -44,4 +44,6 @@ nb-configuration.xml
 # TLS Certificates
 .certs/
 
-.env
+#Public/Private Key
+.pem
+.key
