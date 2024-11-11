@@ -1,6 +1,6 @@
 package castiel.solutionbyhour.delegate;
 
-import castiel.solutionbyhour.exception.QuoteFetchException;
+import castiel.solutionbyhour.exception.FetchException;
 import castiel.solutionbyhour.model.finhub.Quote;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,7 +63,7 @@ public class FinHubDelegate {
                 .onFailure()
                 .invoke(th -> LOGGER.error("Error occurred while fetching quote for " + ticker, th))
                 .onFailure()
-                .transform(th -> new QuoteFetchException("Error fetching quote for " + ticker, th));
+                .transform(th -> new FetchException("Error fetching quote for " + ticker, th));
     }
 
     private CompletionStage<Response> triggerRequest(String ticker) {
@@ -94,12 +94,12 @@ public class FinHubDelegate {
 
     private Uni<Quote> handleError(String errorMessage) {
         LOGGER.error(errorMessage);
-        return Uni.createFrom().failure(new QuoteFetchException(errorMessage));
+        return Uni.createFrom().failure(new FetchException(errorMessage));
     }
 
     private Uni<Quote> handleError(String errorMessage, Throwable e) {
         LOGGER.error(errorMessage, e);
-        return Uni.createFrom().failure(new QuoteFetchException(errorMessage, e));
+        return Uni.createFrom().failure(new FetchException(errorMessage, e));
     }
 
     private boolean isTickerNullOrEmpty(String ticker) {

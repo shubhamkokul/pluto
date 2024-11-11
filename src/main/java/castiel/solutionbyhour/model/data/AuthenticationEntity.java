@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "authentication")
-public class Authentication extends PanacheEntity {
+public class AuthenticationEntity extends PanacheEntity {
 
     @OneToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
-    public User user;  // Link to the User entity
+    public UserEntity userEntity;  // Link to the User entity
 
     @Column(nullable = false)
     public String passwordHash;

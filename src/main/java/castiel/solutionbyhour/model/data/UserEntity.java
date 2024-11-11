@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User extends PanacheEntityBase {
+public class UserEntity extends PanacheEntityBase {
 
     @Id
     @Column(name = "customer_id", nullable = false)
@@ -23,5 +23,5 @@ public class User extends PanacheEntityBase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "primary_address_id")
-    public Address primaryAddress;
+    public AddressEntity primaryAddressEntity;
 }

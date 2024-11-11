@@ -1,6 +1,6 @@
 package castiel.solutionbyhour.persistence;
 
-import castiel.solutionbyhour.model.data.Authentication;
+import castiel.solutionbyhour.model.data.AuthenticationEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -11,18 +11,18 @@ public class AuthenticationRepository {
 
     // Save or update authentication data
     @Transactional
-    public Authentication createAuthentication(Authentication authentication) {
-        authentication.persist();  // Persist authentication data for a user
-        return authentication;
+    public AuthenticationEntity createAuthentication(AuthenticationEntity authenticationEntity) {
+        authenticationEntity.persist();  // Persist authentication data for a user
+        return authenticationEntity;
     }
 
     // Find authentication by user ID
-    public Optional<Authentication> findByCustomerId(Long customerId) {
-        return Authentication.find("customer_id", customerId).firstResultOptional();
+    public Optional<AuthenticationEntity> findByCustomerId(Long customerId) {
+        return AuthenticationEntity.find("customer_id", customerId).firstResultOptional();
     }
 
     // Find authentication by JWT token
-    public Optional<Authentication> findByJwtToken(String jwtToken) {
-        return Authentication.find("jwtToken", jwtToken).firstResultOptional();
+    public Optional<AuthenticationEntity> findByJwtToken(String jwtToken) {
+        return AuthenticationEntity.find("jwtToken", jwtToken).firstResultOptional();
     }
 }
