@@ -1,7 +1,7 @@
 package castiel.solutionbyhour.controller;
 
 import castiel.solutionbyhour.model.user.CreateUserInput;
-import castiel.solutionbyhour.processor.authentication.CreateUserProcessor;
+import castiel.solutionbyhour.processor.user.CreateUser;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,11 +16,11 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class UserController implements PlutoEndpoint {
 
-    private final CreateUserProcessor createUserProcessor;
+    private final CreateUser createUser;
 
     @Inject
-    public UserController(CreateUserProcessor createUserProcessor) {
-        this.createUserProcessor = createUserProcessor;
+    public UserController(CreateUser createUser) {
+        this.createUser = createUser;
     }
 
     @POST
@@ -28,7 +28,7 @@ public class UserController implements PlutoEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> createUser(CreateUserInput createUserInput) {
-        return Uni.createFrom().item(() -> createUserProcessor.apply(createUserInput))
+        return Uni.createFrom().item(() -> createUser.apply(createUserInput))
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool()) // Use the worker thread pool
                 .map(result -> Response.ok().entity(result).build());
     }

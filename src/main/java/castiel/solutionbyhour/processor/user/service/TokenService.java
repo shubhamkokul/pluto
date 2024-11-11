@@ -1,4 +1,4 @@
-package castiel.solutionbyhour.processor.authentication.service;
+package castiel.solutionbyhour.processor.user.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 

@@ -1,4 +1,4 @@
-package castiel.solutionbyhour.processor.authentication.transformer;
+package castiel.solutionbyhour.processor.user.transformer;
 
 import castiel.solutionbyhour.model.data.UserEntity;
 import castiel.solutionbyhour.model.user.CreateUserInput;

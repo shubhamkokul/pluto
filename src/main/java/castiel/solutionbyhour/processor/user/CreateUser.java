@@ -1,4 +1,4 @@
-package castiel.solutionbyhour.processor.authentication;
+package castiel.solutionbyhour.processor.user;
 
 import castiel.solutionbyhour.exception.UserAlreadyExistsException;
 import castiel.solutionbyhour.model.data.UserEntity;
@@ -7,22 +7,22 @@ import castiel.solutionbyhour.model.web.BaseResponse;
 import castiel.solutionbyhour.model.web.ImmutableBaseResponse;
 import castiel.solutionbyhour.persistence.AuthenticationRepository;
 import castiel.solutionbyhour.persistence.UserRepository;
-import castiel.solutionbyhour.processor.authentication.transformer.UserTransformer;
+import castiel.solutionbyhour.processor.user.transformer.UserTransformer;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.util.function.Function;
 
 @ApplicationScoped
-public class CreateUserProcessor implements Function<CreateUserInput, BaseResponse<UserEntity>> {
+public class CreateUser implements Function<CreateUserInput, BaseResponse<UserEntity>> {
 
     private final UserRepository userRepository;
     private final AuthenticationRepository authenticationRepository;
     private final UserTransformer userTransformer;
 
     @Inject
-    public CreateUserProcessor(UserRepository userRepository,
-                               AuthenticationRepository authenticationRepository, UserTransformer userTransformer) {
+    public CreateUser(UserRepository userRepository,
+                      AuthenticationRepository authenticationRepository, UserTransformer userTransformer) {
         this.userRepository = userRepository;
         this.authenticationRepository = authenticationRepository;
         this.userTransformer = userTransformer;
