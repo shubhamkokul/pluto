@@ -1,6 +1,6 @@
 package castiel.solutionbyhour.model.web;
 
-import castiel.solutionbyhour.core.OptionalSerializer;
+import castiel.solutionbyhour.core.serializer.OptionalSerializer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

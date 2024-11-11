@@ -1,5 +1,6 @@
 package castiel.solutionbyhour.controller;
 
+import castiel.solutionbyhour.core.auth.AuthRequired;
 import castiel.solutionbyhour.delegate.FinHubDelegate;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,6 +21,7 @@ public class QuoteController implements PlutoEndpoint {
     @GET
     @Path("/quote/{ticker}")
     @Produces(MediaType.APPLICATION_JSON)
+    @AuthRequired
     public Uni<Response> getQuote(@PathParam("ticker") String ticker) {
         return finHubDelegate
                 .getQuote(ticker)
