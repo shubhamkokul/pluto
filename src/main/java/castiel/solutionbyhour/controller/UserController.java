@@ -1,6 +1,6 @@
 package castiel.solutionbyhour.controller;
 
-import castiel.solutionbyhour.model.user.CreateUserInput;
+import castiel.solutionbyhour.model.user.createuser.CreateUserRequest;
 import castiel.solutionbyhour.processor.user.CreateUser;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
@@ -27,8 +27,8 @@ public class UserController implements PlutoEndpoint {
     @Path("/user")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> createUser(CreateUserInput createUserInput) {
-        return Uni.createFrom().item(() -> createUser.apply(createUserInput))
+    public Uni<Response> createUser(CreateUserRequest createUserRequest) {
+        return Uni.createFrom().item(() -> createUser.process(createUserRequest))
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool()) // Use the worker thread pool
                 .map(result -> Response.ok().entity(result).build());
     }

@@ -21,10 +21,7 @@ public class UserRepository {
     }
 
     public UserEntity findByUsernameOrEmail(String email, String username) {
-        return UserEntity.find(
-                        "SELECT u FROM UserEntity u WHERE u.username = ?1 OR u.email = ?2",
-                        username, email)
-                .firstResult();
+        return UserEntity.find("SELECT u FROM UserEntity u WHERE u.username = ?1 OR u.email = ?2", username, email).firstResult();
     }
 
     public Optional<UserEntity> findByUsername(String username) {
