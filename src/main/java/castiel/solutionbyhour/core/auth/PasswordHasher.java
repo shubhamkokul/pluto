@@ -1,7 +1,8 @@
-package castiel.solutionbyhour.processor.user.service;
+package castiel.solutionbyhour.core.auth;
 
-import castiel.solutionbyhour.model.user.PasswordHashContext;
-import castiel.solutionbyhour.model.user.ImmutablePasswordHashContext;
+import castiel.solutionbyhour.core.SaltGenerator;
+import castiel.solutionbyhour.model.auth.ImmutablePasswordHashContext;
+import castiel.solutionbyhour.model.auth.PasswordHashContext;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import javax.crypto.SecretKeyFactory;

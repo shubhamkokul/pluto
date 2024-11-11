@@ -1,4 +1,4 @@
-package castiel.solutionbyhour.model.user;
+package castiel.solutionbyhour.model.auth;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.immutables.value.Value;
