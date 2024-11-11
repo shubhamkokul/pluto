@@ -1,6 +1,7 @@
 package castiel.solutionbyhour.persistence;
 
-import castiel.solutionbyhour.model.data.User;
+import castiel.solutionbyhour.exception.UserAlreadyExistsException;
+import castiel.solutionbyhour.model.data.UserEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -10,20 +11,31 @@ import java.util.Optional;
 public class UserRepository {
 
     @Transactional
-    public User createUser(User user) {
-        user.persist();
-        return user;
+    public UserEntity createUser(UserEntity userEntity) throws UserAlreadyExistsException {
+        UserEntity existingUserEntity = findByUsernameOrEmail(userEntity.email, userEntity.username);
+        if (existingUserEntity != null) {
+            throw new UserAlreadyExistsException("A user with the same username or email already exists.");
+        }
+        userEntity.persist();
+        return userEntity;
     }
 
-    public Optional<User> findByUsername(String username) {
-        return User.find("username", username).firstResultOptional();
+    public UserEntity findByUsernameOrEmail(String email, String username) {
+        return UserEntity.find(
+                        "SELECT u FROM UserEntity u WHERE u.username = ?1 OR u.email = ?2",
+                        username, email)
+                .firstResult();
     }
 
-    public Optional<User> findByEmail(String email) {
-        return User.find("email", email).firstResultOptional();
+    public Optional<UserEntity> findByUsername(String username) {
+        return UserEntity.find("username", username).firstResultOptional();
     }
 
-    public Optional<User> findByCustomerId(String customerId) {
-        return User.find("customer_id", customerId).firstResultOptional();
+    public Optional<UserEntity> findByEmail(String email) {
+        return UserEntity.find("email", email).firstResultOptional();
+    }
+
+    public Optional<UserEntity> findByCustomerId(String customerId) {
+        return UserEntity.find("customer_id", customerId).firstResultOptional();
     }
 }
