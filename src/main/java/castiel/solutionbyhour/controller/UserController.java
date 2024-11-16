@@ -1,7 +1,9 @@
 package castiel.solutionbyhour.controller;
 
 import castiel.solutionbyhour.model.user.createuser.CreateUserRequest;
+import castiel.solutionbyhour.model.user.validateuser.ValidateUserRequest;
 import castiel.solutionbyhour.processor.user.CreateUser;
+import castiel.solutionbyhour.processor.user.ValidateUser;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -14,10 +16,12 @@ import jakarta.ws.rs.core.Response;
 public class UserController implements PlutoEndpoint {
 
     private final CreateUser createUser;
+    private final ValidateUser validateUser;
 
     @Inject
-    public UserController(CreateUser createUser) {
+    public UserController(CreateUser createUser, ValidateUser validateUser) {
         this.createUser = createUser;
+        this.validateUser = validateUser;
     }
 
     @POST
@@ -28,5 +32,16 @@ public class UserController implements PlutoEndpoint {
         return Uni.createFrom().item(() -> createUser.process(createUserRequest))
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool()) // Use the worker thread pool
                 .map(result -> Response.ok().entity(result).build());
+    }
+
+    @POST
+    @Path("/validateuser")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Uni<Response> validateUser(ValidateUserRequest validateUserRequest) {
+        return Uni.createFrom().item(() -> validateUser.validateUserResponse(validateUserRequest))
+                .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
+                .map(result -> Response.ok().entity(result).build());
+
     }
 }
