@@ -19,20 +19,29 @@ public class PasswordHasher {
     private static final int ITERATIONS = 10000;
     public static final String PBKDF_2_WITH_HMAC_SHA_256 = "PBKDF2WithHmacSHA256";
 
-    public Optional<PasswordHashContext> hashPassword(String password) {
+    public PasswordHashContext hashPassword(String password) {
+        String generatedSalt = SaltGenerator.generateSalt();
+        return getPasswordContext(password, generatedSalt);
+
+    }
+
+    public PasswordHashContext hashPassword(String password, String generatedSalt) {
+        return getPasswordContext(password, generatedSalt);
+    }
+
+    private ImmutablePasswordHashContext getPasswordContext(String password, String generatedSalt) {
         try {
-            String generatedSalt = SaltGenerator.generateSalt();
             byte[] saltBytes = Base64.getDecoder().decode(generatedSalt);
             PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, ITERATIONS, HASH_LENGTH);
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(PBKDF_2_WITH_HMAC_SHA_256);
             byte[] hashBytes = keyFactory.generateSecret(spec).getEncoded();
-            return Optional.of(ImmutablePasswordHashContext.builder()
+            return ImmutablePasswordHashContext.builder()
                     .generatedSalt(generatedSalt)
                     .hashedPassword(Base64.getEncoder().encodeToString(hashBytes))
-                    .build());
+                    .build();
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             System.err.println("Error while hashing password: " + e.getMessage());
-            return Optional.empty();
+            throw new RuntimeException();
         }
     }
 }

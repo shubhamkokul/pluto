@@ -4,6 +4,8 @@ import castiel.solutionbyhour.model.data.UserEntity;
 import castiel.solutionbyhour.model.user.validateuser.ImmutableValidateUserResponse;
 import castiel.solutionbyhour.model.user.validateuser.ValidateUserRequest;
 import castiel.solutionbyhour.model.user.validateuser.ValidateUserResponse;
+import castiel.solutionbyhour.model.web.BaseResponse;
+import castiel.solutionbyhour.model.web.ImmutableBaseResponse;
 import castiel.solutionbyhour.persistence.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,12 +22,13 @@ public class ValidateUser {
         this.userRepository = userRepository;
     }
 
-    public ValidateUserResponse validateUserResponse(ValidateUserRequest validateUserRequest) {
+    public BaseResponse<ValidateUserResponse> process(String username, String email) {
         Optional<UserEntity> userEntity = Optional.ofNullable(
-            userRepository.findByUsernameOrEmail(validateUserRequest.username(), validateUserRequest.email())
+            userRepository.findByUsernameOrEmail(username, email)
     );
-        return ImmutableValidateUserResponse.builder()
+        return ImmutableBaseResponse.<ValidateUserResponse>builder().response(ImmutableValidateUserResponse.builder()
                 .existingUser(userEntity.isPresent())
+                .build())
                 .build();
     }
 }

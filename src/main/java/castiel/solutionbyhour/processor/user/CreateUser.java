@@ -45,7 +45,7 @@ public class CreateUser {
         }
 
         // Process password hashing and token generation asynchronously
-        CompletableFuture<Optional<PasswordHashContext>> passwordHashContextFuture = CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
+        CompletableFuture<PasswordHashContext> passwordHashContextFuture = CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
 
         CompletableFuture<String> authTokenFuture = CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
 
@@ -53,28 +53,16 @@ public class CreateUser {
         return CompletableFuture.allOf(passwordHashContextFuture, authTokenFuture).thenApplyAsync(voidResult -> {
             try {
                 // Await completion of both tasks and collect results
-                Optional<PasswordHashContext> passwordHashContext = passwordHashContextFuture.get();
+                PasswordHashContext passwordHashContext = passwordHashContextFuture.get();
                 String authToken = authTokenFuture.get();
 
                 // Process result and create user
-                if (passwordHashContext.isPresent()) {
-                    // Create user and authentication
-                    UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
-                    authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext.get()));
+                // Create user and authentication
+                UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
+                authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
 
-                    // Return response
-                    return ImmutableBaseResponse.<CreateUserResponse>builder()
-                            .response(ImmutableCreateUserResponse.builder()
-                                    .authToken(authToken)
-                                    .customerId(userEntity.customerId)
-                                    .email(userEntity.email)
-                                    .username(userEntity.username)
-                                    .build())
-                            .message("Created a new user.").build();
-                } else {
-                    // If password hashing failed
-                    return ImmutableBaseResponse.<CreateUserResponse>builder().message("Failed to hash password.").build();
-                }
+                // Return response
+                return ImmutableBaseResponse.<CreateUserResponse>builder().response(ImmutableCreateUserResponse.builder().authToken(authToken).customerId(userEntity.customerId).email(userEntity.email).username(userEntity.username).build()).message("Created a new user.").build();
             } catch (Exception e) {
                 // Catch exceptions and return an error message
                 return ImmutableBaseResponse.<CreateUserResponse>builder().message("An error occurred during user creation: " + e.getMessage()).build();

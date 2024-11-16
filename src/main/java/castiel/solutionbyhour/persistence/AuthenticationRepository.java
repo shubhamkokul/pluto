@@ -12,17 +12,12 @@ public class AuthenticationRepository {
     // Save or update authentication data
     @Transactional
     public AuthenticationEntity createAuthentication(AuthenticationEntity authenticationEntity) {
-        authenticationEntity.persist();  // Persist authentication data for a user
+        authenticationEntity.persist();
         return authenticationEntity;
     }
 
     // Find authentication by user ID
-    public Optional<AuthenticationEntity> findByCustomerId(Long customerId) {
-        return AuthenticationEntity.find("customer_id", customerId).firstResultOptional();
-    }
-
-    // Find authentication by JWT token
-    public Optional<AuthenticationEntity> findByJwtToken(String jwtToken) {
-        return AuthenticationEntity.find("jwtToken", jwtToken).firstResultOptional();
+    public AuthenticationEntity findByCustomerId(Long customerId) {
+        return AuthenticationEntity.find("customerId", customerId).firstResult();
     }
 }
