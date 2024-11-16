@@ -20,7 +20,7 @@ public class UserRepository {
         return userEntity;
     }
 
-    public UserEntity findByUsernameOrEmail(String email, String username) {
+    public UserEntity findByUsernameOrEmail(String username, String email) {
         return UserEntity.find("SELECT u FROM UserEntity u WHERE u.username = ?1 OR u.email = ?2", username, email).firstResult();
     }
 
@@ -33,6 +33,6 @@ public class UserRepository {
     }
 
     public Optional<UserEntity> findByCustomerId(String customerId) {
-        return UserEntity.find("customer_id", customerId).firstResultOptional();
+        return UserEntity.find("customerId", customerId).firstResultOptional();
     }
 }

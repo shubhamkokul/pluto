@@ -34,14 +34,14 @@ public class UserController implements PlutoEndpoint {
                 .map(result -> Response.ok().entity(result).build());
     }
 
-    @POST
-    @Path("/validateuser")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @GET
+    @Path("/user")
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> validateUser(ValidateUserRequest validateUserRequest) {
-        return Uni.createFrom().item(() -> validateUser.validateUserResponse(validateUserRequest))
+    public Uni<Response> validateUser(@QueryParam("username") String username,
+                                      @QueryParam("email") String email) {
+        return Uni.createFrom()
+                .item(() -> validateUser.process(username, email))
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
-                .map(result -> Response.ok().entity(result).build());
-
+                .map(result -> Response.ok(result).build());
     }
 }
