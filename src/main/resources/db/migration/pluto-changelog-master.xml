@@ -101,4 +101,25 @@
         </sql>
     </changeSet>
 
+    <!-- Create the "alert" table -->
+    <changeSet id="11" author="castiel">
+        <sql>
+            CREATE TABLE IF NOT EXISTS public."alert" (
+            "alert_id" BIGSERIAL PRIMARY KEY NOT NULL,
+            "customer_id" BIGSERIAL NOT NULL,
+            "ticker" VARCHAR(255),
+            "email" VARCHAR(255),
+            "alert_change_form" VARCHAR(50),
+            "percent_change" FLOAT,
+            "status" BOOLEAN);
+        </sql>
+    </changeSet>
+
+    <!-- Add index for customer_id in "alert" table -->
+    <changeSet id="12" author="castiel">
+        <sql>
+            CREATE INDEX IF NOT EXISTS alert_customer_id_idx ON public.alert("customer_id");
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
