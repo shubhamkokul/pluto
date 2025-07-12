@@ -49,7 +49,7 @@ public class ValidateAuthToken {
                 .valid(tokenContext.result())
                 .build();
         return ImmutableBaseResponse.<ValidateAuthTokenResponse>builder()
-                .response(response)
+                .data(response)
                 .build();
     }
 

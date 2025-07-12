@@ -62,7 +62,7 @@ public class CreateUser {
                 authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
 
                 // Return response
-                return ImmutableBaseResponse.<CreateUserResponse>builder().response(ImmutableCreateUserResponse.builder().authToken(authToken).customerId(userEntity.customerId).email(userEntity.email).username(userEntity.username).build()).message("Created a new user.").build();
+                return ImmutableBaseResponse.<CreateUserResponse>builder().data(ImmutableCreateUserResponse.builder().authToken(authToken).customerId(userEntity.customerId).email(userEntity.email).username(userEntity.username).build()).message("Created a new user.").build();
             } catch (Exception e) {
                 // Catch exceptions and return an error message
                 return ImmutableBaseResponse.<CreateUserResponse>builder().message("An error occurred during user creation: " + e.getMessage()).build();
