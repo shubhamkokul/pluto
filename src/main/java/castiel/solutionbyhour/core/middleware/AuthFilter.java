@@ -19,8 +19,10 @@ public class AuthFilter implements ContainerRequestFilter {
     private static final Logger LOGGER = Logger.getLogger(AuthFilter.class);
 
     private static final String AUTHORIZATION_HEADER = "authorization";
-    private static final String MISSING_AUTH_HEADER_MESSAGE = "Authorization header is missing";
+    private static final String MISSING_AUTH_HEADER_MESSAGE = "Authorization header is missing or invalid";
     private static final String TOKEN_INVALID_MESSAGE = "Invalid token";
+    private static final String BEARER_PREFIX = "Bearer ";
+
     private final TokenService tokenService;
 
     @Inject
@@ -32,22 +34,23 @@ public class AuthFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
         String authHeader = requestContext.getHeaderString(AUTHORIZATION_HEADER);
 
-        if (authHeader == null) {
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
             abortRequest(requestContext, MISSING_AUTH_HEADER_MESSAGE);
             return;
         }
 
-        // Validate the token
+        // Extract the token after "Bearer "
+        String token = authHeader.substring(BEARER_PREFIX.length()).trim();
+
         TokenContext tokenContext;
         try {
-            tokenContext = tokenService.validateToken(authHeader);
+            tokenContext = tokenService.validateToken(token);
         } catch (Exception e) {
             LOGGER.error("Token validation failed", e);
             abortRequest(requestContext, TOKEN_INVALID_MESSAGE);
             return;
         }
 
-        // Process token context result
         if (tokenContext.result()) {
             String username = tokenContext.username().orElse("Unknown");
             LOGGER.infof("Authorized request by user: %s", username);

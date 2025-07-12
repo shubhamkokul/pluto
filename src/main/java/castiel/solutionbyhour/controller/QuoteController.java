@@ -1,7 +1,7 @@
 package castiel.solutionbyhour.controller;
 
 import castiel.solutionbyhour.core.auth.AuthRequired;
-import castiel.solutionbyhour.delegate.FinHubDelegate;
+import castiel.solutionbyhour.delegate.QuoteDelegate;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -16,14 +16,14 @@ import jakarta.ws.rs.core.Response;
 public class QuoteController implements PlutoEndpoint {
 
     @Inject
-    FinHubDelegate finHubDelegate;
+    QuoteDelegate quoteDelegate;
 
     @GET
     @Path("/quote/{ticker}")
     @Produces(MediaType.APPLICATION_JSON)
     @AuthRequired
     public Uni<Response> getQuote(@PathParam("ticker") String ticker) {
-        return finHubDelegate
+        return quoteDelegate
                 .getQuote(ticker)
                 .onItem()
                 .transform(quote -> {
@@ -37,11 +37,9 @@ public class QuoteController implements PlutoEndpoint {
                         .ok(quote)
                         .build();
             }
-        }).onFailure().recoverWithItem(failure -> {
-            return Response
-                    .status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error occurred while fetching quote: " + failure.getMessage())
-                    .build();
-        });
+        }).onFailure().recoverWithItem(failure -> Response
+                .status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity("Error occurred while fetching quote: " + failure.getMessage())
+                .build());
     }
 }
