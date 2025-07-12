@@ -26,7 +26,7 @@ public class ValidateUser {
         Optional<UserEntity> userEntity = Optional.ofNullable(
             userRepository.findByUsernameOrEmail(username, email)
     );
-        return ImmutableBaseResponse.<ValidateUserResponse>builder().response(ImmutableValidateUserResponse.builder()
+        return ImmutableBaseResponse.<ValidateUserResponse>builder().data(ImmutableValidateUserResponse.builder()
                 .existingUser(userEntity.isPresent())
                 .build())
                 .build();

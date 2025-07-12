@@ -13,9 +13,9 @@ import java.util.Optional;
 @JsonDeserialize(as = ImmutableBaseResponse.class)
 @JsonInclude(JsonInclude.Include.NON_ABSENT) // Ignore fields that are absent (i.e., Optional.empty()) in the serialized output.
 public interface BaseResponse<T> {
-    @JsonProperty("response")
+    @JsonProperty("data")
     @JsonSerialize(using = OptionalSerializer.class)
-    Optional<T> response();
+    Optional<T> data();
 
     @JsonProperty("message")
     @JsonSerialize(using = OptionalSerializer.class)

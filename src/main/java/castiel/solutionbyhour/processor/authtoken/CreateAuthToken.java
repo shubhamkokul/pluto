@@ -97,7 +97,7 @@ public class CreateAuthToken {
                 .authToken(authToken)
                 .build();
         return ImmutableBaseResponse.<CreateAuthTokenResponse>builder()
-                .response(response)
+                .data(response)
                 .message("Auth Token Created")
                 .build();
     }
