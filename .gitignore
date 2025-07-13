@@ -47,4 +47,4 @@ nb-configuration.xml
 #Public/Private Key
 .pem
 .key
-*.key
+
