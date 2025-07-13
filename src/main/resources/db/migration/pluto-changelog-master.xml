@@ -5,37 +5,19 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create the "address" table -->
-    <changeSet id="1" author="castiel">
-        <sql>
-            CREATE TABLE IF NOT EXISTS public."address" (
-            "address_id" BIGSERIAL PRIMARY KEY NOT NULL,
-            "customer_id" BIGSERIAL NOT NULL, <!-- Foreign key placeholder -->
-            "street" VARCHAR(255) NOT NULL,
-            "city" VARCHAR(255) NOT NULL,
-            "state" VARCHAR(255),
-            "postal_code" VARCHAR(20),
-            "country" VARCHAR(255),
-            "is_primary" BOOLEAN NOT NULL DEFAULT FALSE
-            );
-        </sql>
-    </changeSet>
-
     <!-- Create the "users" table -->
-    <changeSet id="2" author="castiel">
+    <changeSet id="1" author="castiel">
         <sql>
             CREATE TABLE IF NOT EXISTS public."users" (
             "customer_id" BIGSERIAL PRIMARY KEY NOT NULL,
             "first_name" VARCHAR(255) NOT NULL,
             "last_name" VARCHAR(255) NOT NULL,
-            "email" VARCHAR(255) UNIQUE NOT NULL,
-            "primary_address_id" BIGINT
-            );
+            "email" VARCHAR(255) UNIQUE NOT NULL);
         </sql>
     </changeSet>
 
     <!-- Create the "authentication" table -->
-    <changeSet id="3" author="castiel">
+    <changeSet id="2" author="castiel">
         <sql>
             CREATE TABLE IF NOT EXISTS public."authentication" (
             "authentication_id" BIGSERIAL PRIMARY KEY NOT NULL,
@@ -49,76 +31,25 @@
         </sql>
     </changeSet>
 
-    <!-- Add foreign key constraint on "customer_id" in the "address" table -->
-    <changeSet id="4" author="castiel">
-        <sql>
-            ALTER TABLE public."address"
-            ADD CONSTRAINT fk_customer FOREIGN KEY ("customer_id") REFERENCES public.users ("customer_id") ON DELETE CASCADE;
-        </sql>
-    </changeSet>
-
     <!-- Add foreign key constraint on "customer_id" in the "authentication" table -->
-    <changeSet id="5" author="castiel">
+    <changeSet id="3" author="castiel">
         <sql>
             ALTER TABLE public."authentication"
             ADD CONSTRAINT fk_customer FOREIGN KEY ("customer_id") REFERENCES public.users ("customer_id") ON DELETE CASCADE;
         </sql>
     </changeSet>
 
-    <!-- Add foreign key constraint on "primary_address_id" in the "users" table -->
-    <changeSet id="6" author="castiel">
-        <sql>
-            ALTER TABLE public."users"
-            ADD CONSTRAINT fk_primary_address FOREIGN KEY ("primary_address_id") REFERENCES public.address ("address_id") ON DELETE SET NULL;
-        </sql>
-    </changeSet>
-
     <!-- Add index for customer_id in "users" table -->
-    <changeSet id="7" author="castiel">
+    <changeSet id="4" author="castiel">
         <sql>
             CREATE INDEX IF NOT EXISTS users_customer_id_idx ON public.users("customer_id");
         </sql>
     </changeSet>
 
-    <!-- Add index for customer_id in "address" table -->
-    <changeSet id="8" author="castiel">
-        <sql>
-            CREATE INDEX IF NOT EXISTS address_customer_id_idx ON public.address("customer_id");
-        </sql>
-    </changeSet>
-
-    <!-- Add index for is_primary in "address" table -->
-    <changeSet id="9" author="castiel">
-        <sql>
-            CREATE INDEX IF NOT EXISTS address_is_primary_idx ON public.address("is_primary");
-        </sql>
-    </changeSet>
-
     <!-- Add index for customer_id in "authentication" table -->
-    <changeSet id="10" author="castiel">
+    <changeSet id="5" author="castiel">
         <sql>
             CREATE INDEX IF NOT EXISTS authentication_customer_id_idx ON public.authentication("customer_id");
-        </sql>
-    </changeSet>
-
-    <!-- Create the "alert" table -->
-    <changeSet id="11" author="castiel">
-        <sql>
-            CREATE TABLE IF NOT EXISTS public."alert" (
-            "alert_id" BIGSERIAL PRIMARY KEY NOT NULL,
-            "customer_id" BIGSERIAL NOT NULL,
-            "ticker" VARCHAR(255),
-            "email" VARCHAR(255),
-            "alert_change_form" VARCHAR(50),
-            "percent_change" FLOAT,
-            "status" BOOLEAN);
-        </sql>
-    </changeSet>
-
-    <!-- Add index for customer_id in "alert" table -->
-    <changeSet id="12" author="castiel">
-        <sql>
-            CREATE INDEX IF NOT EXISTS alert_customer_id_idx ON public.alert("customer_id");
         </sql>
     </changeSet>
 
