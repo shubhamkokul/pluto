@@ -1,13 +1,14 @@
 package castiel.solutionbyhour.model.auth;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Optional;
+
 import org.immutables.value.Value;
 
-import java.util.Optional;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableTokenContext.class)
 public interface TokenContext {
     boolean result();
-    Optional<String> username();
+    Optional<String> email();
 }

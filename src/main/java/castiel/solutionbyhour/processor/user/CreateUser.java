@@ -1,8 +1,16 @@
 package castiel.solutionbyhour.processor.user;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
+
+import castiel.solutionbyhour.core.auth.PasswordHasher;
+import castiel.solutionbyhour.core.auth.TokenService;
+import castiel.solutionbyhour.exception.UserAlreadyExistsException;
+import castiel.solutionbyhour.model.auth.PasswordHashContext;
 import castiel.solutionbyhour.model.data.AuthenticationEntity;
 import castiel.solutionbyhour.model.data.UserEntity;
-import castiel.solutionbyhour.model.auth.PasswordHashContext;
 import castiel.solutionbyhour.model.user.createuser.CreateUserRequest;
 import castiel.solutionbyhour.model.user.createuser.CreateUserResponse;
 import castiel.solutionbyhour.model.user.createuser.ImmutableCreateUserResponse;
@@ -10,15 +18,9 @@ import castiel.solutionbyhour.model.web.BaseResponse;
 import castiel.solutionbyhour.model.web.ImmutableBaseResponse;
 import castiel.solutionbyhour.persistence.AuthenticationRepository;
 import castiel.solutionbyhour.persistence.UserRepository;
-import castiel.solutionbyhour.core.auth.PasswordHasher;
-import castiel.solutionbyhour.core.auth.TokenService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 @ApplicationScoped
 public class CreateUser {
@@ -29,7 +31,8 @@ public class CreateUser {
     private final PasswordHasher passwordHasher;
 
     @Inject
-    public CreateUser(UserRepository userRepository, AuthenticationRepository authenticationRepository, TokenService tokenService, PasswordHasher passwordHasher) {
+    public CreateUser(UserRepository userRepository, AuthenticationRepository authenticationRepository,
+            TokenService tokenService, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
         this.authenticationRepository = authenticationRepository;
         this.tokenService = tokenService;
@@ -45,9 +48,11 @@ public class CreateUser {
         }
 
         // Process password hashing and token generation asynchronously
-        CompletableFuture<PasswordHashContext> passwordHashContextFuture = CompletableFuture.supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
+        CompletableFuture<PasswordHashContext> passwordHashContextFuture = CompletableFuture
+                .supplyAsync(() -> passwordHasher.hashPassword(createUserRequest.password()));
 
-        CompletableFuture<String> authTokenFuture = CompletableFuture.supplyAsync(() -> tokenService.createAuthToken(createUserRequest.username()));
+        CompletableFuture<String> authTokenFuture = CompletableFuture
+                .supplyAsync(() -> tokenService.createAuthToken(createUserRequest.email()));
 
         // Wait for both asynchronous tasks to complete and process the results
         return CompletableFuture.allOf(passwordHashContextFuture, authTokenFuture).thenApplyAsync(voidResult -> {
@@ -59,13 +64,21 @@ public class CreateUser {
                 // Process result and create user
                 // Create user and authentication
                 UserEntity userEntity = userRepository.createUser(buildUserEntity(createUserRequest));
-                authenticationRepository.createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
+                authenticationRepository
+                        .createAuthentication(buildAuthenticationEntity(userEntity.customerId, passwordHashContext));
 
                 // Return response
-                return ImmutableBaseResponse.<CreateUserResponse>builder().data(ImmutableCreateUserResponse.builder().authToken(authToken).customerId(userEntity.customerId).email(userEntity.email).username(userEntity.username).build()).message("Created a new user.").build();
-            } catch (Exception e) {
+                return ImmutableBaseResponse.<CreateUserResponse>builder()
+                        .data(ImmutableCreateUserResponse.builder()
+                                .authToken(authToken)
+                                .customerId(userEntity.customerId)
+                                .email(userEntity.email).build())
+                        .message("Created a new user.")
+                        .build();
+            } catch (UserAlreadyExistsException | InterruptedException | ExecutionException e) {
                 // Catch exceptions and return an error message
-                return ImmutableBaseResponse.<CreateUserResponse>builder().message("An error occurred during user creation: " + e.getMessage()).build();
+                return ImmutableBaseResponse.<CreateUserResponse>builder()
+                        .message("An error occurred during user creation: " + e.getMessage()).build();
             }
         }).join(); // Wait for the completion of all futures before returning the response
     }
@@ -106,9 +119,9 @@ public class CreateUser {
 
     private UserEntity buildUserEntity(CreateUserRequest createUserRequest) {
         UserEntity userEntity = new UserEntity();
-        userEntity.name = createUserRequest.name();
+        userEntity.firstName = createUserRequest.firstName();
+        userEntity.lastName = createUserRequest.lastName();
         userEntity.email = createUserRequest.email();
-        userEntity.username = createUserRequest.username();
         return userEntity;
     }
 
