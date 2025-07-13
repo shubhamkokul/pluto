@@ -1,6 +1,5 @@
 package castiel.solutionbyhour.core.auth;
 
-import castiel.solutionbyhour.core.SaltGenerator;
 import castiel.solutionbyhour.model.auth.ImmutablePasswordHashContext;
 import castiel.solutionbyhour.model.auth.PasswordHashContext;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,7 +9,6 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
-import java.util.Optional;
 
 @ApplicationScoped
 public class PasswordHasher {
