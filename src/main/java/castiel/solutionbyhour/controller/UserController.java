@@ -1,7 +1,6 @@
 package castiel.solutionbyhour.controller;
 
 import castiel.solutionbyhour.model.user.createuser.CreateUserRequest;
-import castiel.solutionbyhour.model.user.validateuser.ValidateUserRequest;
 import castiel.solutionbyhour.processor.user.CreateUser;
 import castiel.solutionbyhour.processor.user.ValidateUser;
 import io.smallrye.mutiny.Uni;

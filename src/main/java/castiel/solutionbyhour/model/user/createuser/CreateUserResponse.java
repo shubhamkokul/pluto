@@ -1,14 +1,13 @@
 package castiel.solutionbyhour.model.user.createuser;
 
+import org.immutables.value.Value;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
 
 @Value.Immutable
 @JsonDeserialize(as = ImmutableCreateUserResponse.class)
 public interface CreateUserResponse {
-    @JsonProperty("username")
-    String username();
     @JsonProperty("auth_token")
     String authToken();
     @JsonProperty("email")

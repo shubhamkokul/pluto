@@ -1,5 +1,9 @@
 package castiel.solutionbyhour.core.middleware;
 
+import java.io.IOException;
+
+import org.jboss.logging.Logger;
+
 import castiel.solutionbyhour.core.auth.AuthRequired;
 import castiel.solutionbyhour.core.auth.TokenService;
 import castiel.solutionbyhour.model.auth.TokenContext;
@@ -8,9 +12,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
-import org.jboss.logging.Logger;
-
-import java.io.IOException;
 
 @Provider
 @AuthRequired
@@ -52,7 +53,7 @@ public class AuthFilter implements ContainerRequestFilter {
         }
 
         if (tokenContext.result()) {
-            String username = tokenContext.username().orElse("Unknown");
+            String username = tokenContext.email().orElse("Unknown");
             LOGGER.infof("Authorized request by user: %s", username);
         } else {
             abortRequest(requestContext, TOKEN_INVALID_MESSAGE);

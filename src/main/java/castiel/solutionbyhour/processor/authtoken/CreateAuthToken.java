@@ -1,5 +1,10 @@
 package castiel.solutionbyhour.processor.authtoken;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import castiel.solutionbyhour.core.auth.PasswordHasher;
 import castiel.solutionbyhour.core.auth.TokenService;
 import castiel.solutionbyhour.model.auth.PasswordHashContext;
@@ -14,10 +19,6 @@ import castiel.solutionbyhour.persistence.AuthenticationRepository;
 import castiel.solutionbyhour.persistence.UserRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Optional;
 
 @ApplicationScoped
 public class CreateAuthToken {
@@ -52,8 +53,7 @@ public class CreateAuthToken {
 
         try {
             // Fetch user entity
-            Optional<UserEntity> userEntityOpt = Optional.ofNullable(
-                    userRepository.findByUsernameOrEmail(createAuthTokenRequest.username(), createAuthTokenRequest.email()));
+            Optional<UserEntity> userEntityOpt = userRepository.findByEmail(createAuthTokenRequest.email());
 
             if (userEntityOpt.isEmpty()) {
                 return buildErrorResponse(USER_NOT_FOUND_MSG);
@@ -68,7 +68,7 @@ public class CreateAuthToken {
             }
 
             // Generate auth token
-            String authToken = tokenService.createAuthToken(userEntity.username);
+            String authToken = tokenService.createAuthToken(userEntity.email);
             return buildSuccessResponse(authToken);
 
         } catch (Exception e) {
