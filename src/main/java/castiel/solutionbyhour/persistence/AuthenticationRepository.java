@@ -4,7 +4,6 @@ import castiel.solutionbyhour.model.data.AuthenticationEntity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
-import java.util.Optional;
 
 @ApplicationScoped
 public class AuthenticationRepository {

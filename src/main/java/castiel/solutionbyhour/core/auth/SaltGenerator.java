@@ -1,4 +1,4 @@
-package castiel.solutionbyhour.core;
+package castiel.solutionbyhour.core.auth;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
