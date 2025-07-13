@@ -11,5 +11,6 @@ import jakarta.annotation.Nullable;
 public interface CreateAuthTokenRequest {
     @Nullable
     String email();
+
     String password();
 }
